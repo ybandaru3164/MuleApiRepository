@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	<http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" doc:id="b85ca6e1-6f75-48bd-a9aa-2cd001384538" >
+		<http:listener-connection host="0.0.0.0" port="8082" />
+	</http:listener-config>
+	<flow name="distinctFlow" doc:id="b6903371-3d37-4bfe-9dd9-2c2fe0bfb88f" >
+		<http:listener doc:name="Listener" doc:id="97f89412-97f9-4352-aab5-c47a6210bae9" config-ref="HTTP_Listener_config" path="/distinct"/>
+		<logger level="INFO" doc:name="Logger" doc:id="0dfbb19b-ced0-433e-a56e-bb00b59daf55" message="#[payload]"/>
+		<set-variable value='#[payload.employee_name]' doc:name="Set Variable" doc:id="e137899b-20e2-4e5a-a61e-1ef38d5dced7" variableName="myName"/>
+		<choice doc:name="Choice" doc:id="2c77a140-d793-4e09-b084-a4bb73049c8f" >
+			<when expression="#[payload.callJava == false]">
+				<ee:transform doc:name="Transform Message" doc:id="fd39a860-1815-4b68-90a0-04436e10d097">
+			<ee:message>
+				<ee:set-payload><![CDATA[%dw 2.0
+import java!org::apache::commons::lang3::StringUtils
+output application/json
+---
+{
+	"CheckNameEmpty": isEmpty(vars.myName),
+	"emp_fullname": vars.myName splitBy(" "),
+	"empdesignation": payload.employee_designation joinBy ("-"),
+	"WithExternalJar": StringUtils::substring("Yashwanth",1,4),
+	
+}
+]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+				<set-payload value="#[payload]" doc:name="Set Payload" doc:id="20f24ae9-1249-4fa6-8a8b-a0914189263d" />
+			</when>
+			<otherwise >
+				<ee:transform doc:name="Transform Message" doc:id="6fb07b37-2a6f-4269-928a-2e40448cf262">
+			<ee:message>
+			</ee:message>
+			<ee:variables>
+				<ee:set-variable variableName="withJava"><![CDATA[%dw 2.0
+import java!poc::MyClass
+output application/json
+---
+{
+	"WithJavaClass": MyClass::getDataFromDataWeave(vars.myName)
+}
+]]></ee:set-variable>
+			</ee:variables>
+		</ee:transform>
+				<logger level="INFO" doc:name="Logger" doc:id="9a10b982-4097-4a11-aa5f-72cea1e0b6d2" message="#[vars.withJava]" />
+			</otherwise>
+		</choice>
+	</flow>
+</mule>

@@ -1,0 +1,11 @@
+{
+  "minMuleVersion": "4.2.2-hf2",
+  "classLoaderModelLoaderDescriptor": {
+        "id": "mule",
+        "attributes": {
+            "exportedPackages": [
+            "org.apache.commons.lang3"
+            ]
+        }
+    }
+}
