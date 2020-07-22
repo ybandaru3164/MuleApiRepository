@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:file="http://www.mulesoft.org/schema/mule/file" xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/file http://www.mulesoft.org/schema/mule/file/current/mule-file.xsd">
+	<file:config name="File_Config" doc:name="File Config" doc:id="6d38508f-3691-4dd1-9a38-31f8b9ad75b4" />
+	<configuration-properties doc:name="Configuration properties" doc:id="ece2b563-a04e-43c8-9050-d5258a171101" file="test.yaml" />
+	<flow name="resource-testFlow" doc:id="c40cbe61-ff4e-48b3-8e4f-8d892b0fc6bf" >
+		<file:listener doc:name="On New or Updated File" doc:id="69e42b6a-3d9c-4109-a126-f16747e41acf" config-ref="File_Config" directory="C:\Yashwanth\Yashwanth_D\Mule\eai\dom\event" autoDelete="true">
+			<scheduling-strategy >
+				<fixed-frequency />
+			</scheduling-strategy>
+		</file:listener>
+		<logger level="INFO" doc:name="Logger" doc:id="eae32b71-c1fe-4037-bc18-2d1b70d46f65" message="#[payload]"/>
+		<logger level="INFO" doc:name="Logger" doc:id="18327b72-eaef-4fed-9231-b7c72501c628" message="${app.home}${file.event}"/>
+		<file:read doc:name="Read" doc:id="029af3e3-736b-404d-afc3-17fcb2a2050d" config-ref="File_Config" path="${app.home}${file.event}"/>
+		<logger level="INFO" doc:name="Logger" doc:id="f32670c8-90b1-4c7f-a106-97c797ba73bd" message="#[payload]"/>
+	</flow>
+</mule>
